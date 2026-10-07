@@ -1,6 +1,8 @@
 import SignInForm from "@/components/sign-in";
+import { authIsNotRequired } from "@/lib/auth-utils";
 
-const SignInPage = () => {
+const SignInPage = async () => {
+  await authIsNotRequired();
   return <SignInForm />;
 };
 

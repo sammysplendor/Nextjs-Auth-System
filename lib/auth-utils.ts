@@ -4,15 +4,13 @@ import { redirect } from "next/navigation";
 
 export const authSession = async () => {
   try {
-    const session = auth.api.getSession({ headers: await headers() });
-
-    if (!session) {
-      throw new Error("Unauthorized: No valid session found");
-    }
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
     return session;
   } catch (error) {
-    console.error("AUTHENTICATION ERROR:", error);
+    console.error("SESSION ERROR:", error);
   }
 };
 
