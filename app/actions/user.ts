@@ -3,7 +3,7 @@
 import { authSession } from "@/lib/auth-utils";
 import { db } from "../../lib/db";
 
-export const updateProfile = async () => {
+export const getCurrentUserProfile = async () => {
   const session = await authSession();
 
   if (!session) {

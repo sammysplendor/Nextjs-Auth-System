@@ -1,11 +1,12 @@
 import { authIsRequired } from "@/lib/auth-utils";
-import ProfileForm from "@/components/update-profile";
+import { getCurrentUserProfile } from "@/app/actions/user";
 import { redirect } from "next/navigation";
-import { updateProfile } from "@/app/actions/user";
+import ProfileForm from "@/components/update-profile";
+import ChangePasswordForm from "@/components/change-password";
 
 const ProfilePage = async () => {
   await authIsRequired();
-  const user = await updateProfile();
+  const user = await getCurrentUserProfile();
 
   if (!user) redirect("/sign-in");
 
@@ -17,6 +18,8 @@ const ProfilePage = async () => {
         image={user.image ?? ""}
         twoFactorEnabled={false}
       />
+
+      <ChangePasswordForm />
     </div>
   );
 };
