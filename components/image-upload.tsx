@@ -4,7 +4,6 @@ import { OurFileRouter } from "@/app/api/uploadthing/core";
 import { UploadDropzone } from "@/utils/uploadthing";
 import Image from "next/image";
 import { useState } from "react";
-import { Button } from "./ui/button";
 import { Trash } from "lucide-react";
 
 interface ImageUploadProps {
@@ -26,20 +25,25 @@ const ImageUpload = ({ defaultUrl, onChange, endpoint }: ImageUploadProps) => {
     return (
       <div className="relative">
         <div className="relative w-25 h-25 shadow-lg overflow-hidden rounded-full">
-          <Image src={value} className="object-cover" fill alt="user image" />
+          <Image
+            src={value}
+            className="object-cover"
+            fill
+            alt="user image"
+            sizes="100px"
+            loading="eager"
+          />
         </div>
 
         <div className="flex mt-3 gap-2">
-          <Button className="absolute rounded-full right-0 top-0 bg-white opacity-60 hover:opacity-100 cursor-pointer shadow-2xl p-2 m-2">
-            <Trash />
-          </Button>
+          <Trash className="absolute rounded-full right-0 top-0 text-rose-600 cursor-pointer" />
         </div>
       </div>
     );
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <div className="flex flex-col items-center justify-center p-6">
       <UploadDropzone
         endpoint={endpoint}
         content={{
@@ -47,7 +51,10 @@ const ImageUpload = ({ defaultUrl, onChange, endpoint }: ImageUploadProps) => {
             ? "Drop or click to replace the image"
             : "Drop or click to upload an image",
         }}
-        appearance={{ container: "rounded-xl border" }}
+        appearance={{
+          container: "rounded-xl border",
+          button: "!bg-white !text-black",
+        }}
         onClientUploadComplete={(res) => {
           const url = res?.[0]?.ufsUrl;
 
@@ -60,7 +67,7 @@ const ImageUpload = ({ defaultUrl, onChange, endpoint }: ImageUploadProps) => {
           alert(`ERROR! ${error.message}`);
         }}
       />
-    </main>
+    </div>
   );
 };
 

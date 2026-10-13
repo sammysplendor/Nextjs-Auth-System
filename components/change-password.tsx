@@ -59,7 +59,7 @@ const ChangePasswordForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-sm border-0 shadow-none">
+    <Card className="w-full max-w-sm border-0 shadow-none h-fit">
       <CardHeader>
         <CardTitle>Update your password</CardTitle>
       </CardHeader>
@@ -127,7 +127,11 @@ const ChangePasswordForm = () => {
             />
           </FieldGroup>
 
-          <Button type="submit" form="change-password button">
+          <Button
+            type="submit"
+            form="change-password button"
+            disabled={passwordForm.formState.isSubmitting}
+          >
             {passwordForm.formState.isSubmitting ? (
               <Spinner className="size-6" />
             ) : (

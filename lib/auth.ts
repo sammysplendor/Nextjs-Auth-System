@@ -2,7 +2,9 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { nextCookies } from "better-auth/next-js";
+import { twoFactor } from "better-auth/plugins";
 import sendVerificationEmail from "./send-verification-email";
+import sendOtpEmail from "./send-otp-email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -37,5 +39,14 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [nextCookies()],
+  plugins: [
+    nextCookies(),
+    twoFactor({
+      otpOptions: {
+        async sendOTP({ otp }) {
+          sendOtpEmail({ to: "splendidsam006@gmail.com", otp });
+        },
+      },
+    }),
+  ],
 });

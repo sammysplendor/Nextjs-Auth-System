@@ -44,11 +44,12 @@ const ProfileForm = ({
       name,
       email,
       image,
-      twoFactorEnabled: false,
+      twoFactorEnabled,
     },
   });
 
   const onSubmit = async (data: ProfileSchemaType) => {
+    console.log("FORM SUBMITTED:", data);
     try {
       await authClient.updateUser(
         {
@@ -70,16 +71,17 @@ const ProfileForm = ({
   };
 
   return (
-    <Card className="w-full max-w-sm border-0 shadow-none">
+    <Card className="w-full max-w-sm border-0 shadow-none h-fit overflow-y-auto">
       <CardHeader>
         <CardTitle>Update your profile details</CardTitle>
       </CardHeader>
       <CardContent>
         <form
-          action=""
           id="profile-form"
           className="flex flex-col gap-6"
-          onSubmit={profileForm.handleSubmit(onSubmit)}
+          onSubmit={profileForm.handleSubmit(onSubmit, () => {
+            toast.error("Please fix the validation errors.");
+          })}
         >
           <FieldGroup>
             <Controller
@@ -148,7 +150,12 @@ const ProfileForm = ({
             />
           </FieldGroup>
 
-          <Button type="submit" form="sign-in form" className="cursor-pointer">
+          <Button
+            type="submit"
+            form="profile-form"
+            className="cursor-pointer"
+            disabled={profileForm.formState.isSubmitting}
+          >
             {profileForm.formState.isSubmitting ? (
               <Spinner className="size-6" />
             ) : (
