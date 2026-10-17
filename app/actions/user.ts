@@ -12,7 +12,7 @@ export const getCurrentUserProfile = async () => {
 
   const user = await db.user.findUnique({
     where: { id: session.user.id },
-    select: { email: true, name: true, image: true },
+    select: { email: true, name: true, image: true, twoFactorEnabled: true },
   });
 
   return user;

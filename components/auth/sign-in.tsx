@@ -1,6 +1,10 @@
 "use client";
 
-import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,90 +12,74 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel } from "./ui/field";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "./ui/input";
-import { authClient } from "@/lib/auth-client";
-import { toast } from "sonner";
+} from "@/components/ui/card";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
-import { Button } from "./ui/button";
-import { Spinner } from "./ui/spinner";
-import { redirect } from "next/navigation";
-import { Separator } from "./ui/separator";
+import { authClient } from "@/lib/auth-client";
+import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
 
-const formSchema = z
-  .object({
-    name: z
-      .string()
-      .trim()
-      .refine(
-        (val) => {
-          const parts = val.trim().split(/\s+/);
-          return parts.length >= 2 && parts.every((part) => part.length >= 2);
-        },
-        {
-          message:
-            "Enter both first and last name (at least 2 characters each).",
-        },
-      ),
-    email: z.email("Please enter a valid email"),
-    password: z
-      .string()
-      .min(6, "Must be atleast 6 characters")
-      .regex(/[^a-zA-Z0-9]/, "Must contain atleast 1 special character"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
+const formSchema = z.object({
+  email: z.email("Please enter a valid email.").trim(),
+  password: z.string().min(6, "Please enter a valid password."),
+});
 
 type formType = z.infer<typeof formSchema>;
 
-const SignUpForm = () => {
+const SignInForm = () => {
+  const router = useRouter();
+
   const form = useForm<formType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
   const onSubmit = async (data: formType) => {
     try {
-      await authClient.signUp.email(
+      await authClient.signIn.email(
         {
-          name: data.name,
           email: data.email,
           password: data.password,
+          callbackURL: "/",
         },
         {
           onSuccess: async () => {
-            toast.success("Sign up successfull");
-            redirect("/sign-in");
+            // toast.success("Sign in successfull");
+            const { error } = await authClient.twoFactor.sendOtp({});
+            if (error) {
+              toast.error(error.message);
+            }
+
+            router.push("/two-factor");
           },
           onError: (ctx) => {
             toast.error(ctx.error.message);
           },
         },
       );
-    } catch (error) {
-      console.error("SIGN UP ERROR:", error);
+    } catch {
+      throw new Error("Something went wrong");
     }
   };
 
-  const signUpWithGoogle = async () => {
+  const signInWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
       callbackURL: "/",
     });
   };
 
-  const signUpWithGithub = async () => {
+  const signInWithGithub = async () => {
     await authClient.signIn.social({
       provider: "github",
       callbackURL: "/",
@@ -101,35 +89,12 @@ const SignUpForm = () => {
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-        <CardDescription>
-          Enter your credentials to create an account
-        </CardDescription>
+        <CardTitle>Sign In</CardTitle>
+        <CardDescription>Sign in to your account.</CardDescription>
       </CardHeader>
       <CardContent>
-        <form id="sign-up form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="sign-in form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Fullname</FieldLabel>
-                  <Input
-                    {...field}
-                    type="text"
-                    id="name"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="John Doe"
-                    autoComplete="off"
-                    required
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
             <Controller
               name="email"
               control={form.control}
@@ -172,29 +137,6 @@ const SignUpForm = () => {
                 </Field>
               )}
             />
-            <Controller
-              name="confirmPassword"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="confirmPassword">
-                    Confirm Password
-                  </FieldLabel>
-                  <Input
-                    {...field}
-                    type="password"
-                    id="password"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="* * * * * *"
-                    autoComplete="off"
-                    required
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
           </FieldGroup>
         </form>
       </CardContent>
@@ -203,15 +145,15 @@ const SignUpForm = () => {
           orientation="horizontal"
           className="flex w-full itc justify-between"
         >
-          <p className="text-sm flex items-center gap-1.5">
-            Already have an account?
-            <Link href="/sign-in" className="text-blue-500">
-              <b>Sign In</b>
+          <p className=" text-sm flex items-center gap-1.5">
+            Do not have an account?
+            <Link href="/sign-up" className="text-blue-500">
+              <b>Sign Up</b>
             </Link>
           </p>
           <>
             <Button
-              type="reset"
+              type="button"
               variant="outline"
               onClick={() => form.reset()}
               className="cursor-pointer"
@@ -220,13 +162,13 @@ const SignUpForm = () => {
             </Button>
             <Button
               type="submit"
-              form="sign-up form"
+              form="sign-in form"
               className="cursor-pointer"
             >
               {form.formState.isSubmitting ? (
                 <Spinner className="size-6" />
               ) : (
-                "Sign Up"
+                "Sign In"
               )}
             </Button>
           </>
@@ -240,14 +182,14 @@ const SignUpForm = () => {
           <Button
             type="button"
             className="text-sm cursor-pointer"
-            onClick={signUpWithGoogle}
+            onClick={signInWithGoogle}
           >
             Continue with Google
           </Button>
           <Button
             type="button"
             className="text-sm cursor-pointer"
-            onClick={signUpWithGithub}
+            onClick={signInWithGithub}
           >
             Continue with GitHub
           </Button>
@@ -257,4 +199,4 @@ const SignUpForm = () => {
   );
 };
 
-export default SignUpForm;
+export default SignInForm;

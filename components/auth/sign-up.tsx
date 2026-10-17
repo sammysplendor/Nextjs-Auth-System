@@ -1,10 +1,6 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import z from "zod";
 import {
   Card,
   CardContent,
@@ -12,64 +8,90 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "./ui/spinner";
-import Link from "next/link";
+} from "../ui/card";
+import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "../ui/input";
 import { authClient } from "@/lib/auth-client";
-import { Separator } from "./ui/separator";
+import { toast } from "sonner";
+import Link from "next/link";
+import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
+import { redirect } from "next/navigation";
+import { Separator } from "../ui/separator";
 
-const formSchema = z.object({
-  email: z.email("Please enter a valid email.").trim(),
-  password: z.string().min(6, "Please enter a valid password."),
-});
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .refine(
+        (val) => {
+          const parts = val.trim().split(/\s+/);
+          return parts.length >= 2 && parts.every((part) => part.length >= 2);
+        },
+        {
+          message:
+            "Enter both first and last name (at least 2 characters each).",
+        },
+      ),
+    email: z.email("Please enter a valid email"),
+    password: z
+      .string()
+      .min(6, "Must be atleast 6 characters")
+      .regex(/[^a-zA-Z0-9]/, "Must contain atleast 1 special character"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 type formType = z.infer<typeof formSchema>;
 
-const SignInForm = () => {
+const SignUpForm = () => {
   const form = useForm<formType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
   const onSubmit = async (data: formType) => {
     try {
-      await authClient.signIn.email(
+      await authClient.signUp.email(
         {
+          name: data.name,
           email: data.email,
           password: data.password,
         },
         {
           onSuccess: async () => {
-            toast.success("Sign in successfull");
+            toast.success("Sign up successfull");
+            redirect("/sign-in");
           },
           onError: (ctx) => {
             toast.error(ctx.error.message);
           },
         },
       );
-    } catch {
-      throw new Error("Something went wrong");
+    } catch (error) {
+      console.error("SIGN UP ERROR:", error);
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signUpWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
       callbackURL: "/",
     });
   };
 
-  const signInWithGithub = async () => {
+  const signUpWithGithub = async () => {
     await authClient.signIn.social({
       provider: "github",
       callbackURL: "/",
@@ -79,12 +101,35 @@ const SignInForm = () => {
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>Sign in to your account.</CardDescription>
+        <CardTitle>Sign Up</CardTitle>
+        <CardDescription>
+          Enter your credentials to create an account
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <form id="sign-in form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="sign-up form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="name">Fullname</FieldLabel>
+                  <Input
+                    {...field}
+                    type="text"
+                    id="name"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="John Doe"
+                    autoComplete="off"
+                    required
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
             <Controller
               name="email"
               control={form.control}
@@ -127,6 +172,29 @@ const SignInForm = () => {
                 </Field>
               )}
             />
+            <Controller
+              name="confirmPassword"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="confirmPassword">
+                    Confirm Password
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    type="password"
+                    id="password"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="* * * * * *"
+                    autoComplete="off"
+                    required
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
           </FieldGroup>
         </form>
       </CardContent>
@@ -135,15 +203,15 @@ const SignInForm = () => {
           orientation="horizontal"
           className="flex w-full itc justify-between"
         >
-          <p className=" text-sm flex items-center gap-1.5">
-            Do not have an account?
-            <Link href="/sign-up" className="text-blue-500">
-              <b>Sign Up</b>
+          <p className="text-sm flex items-center gap-1.5">
+            Already have an account?
+            <Link href="/sign-in" className="text-blue-500">
+              <b>Sign In</b>
             </Link>
           </p>
           <>
             <Button
-              type="button"
+              type="reset"
               variant="outline"
               onClick={() => form.reset()}
               className="cursor-pointer"
@@ -152,13 +220,13 @@ const SignInForm = () => {
             </Button>
             <Button
               type="submit"
-              form="sign-in form"
+              form="sign-up form"
               className="cursor-pointer"
             >
               {form.formState.isSubmitting ? (
                 <Spinner className="size-6" />
               ) : (
-                "Sign In"
+                "Sign Up"
               )}
             </Button>
           </>
@@ -172,14 +240,14 @@ const SignInForm = () => {
           <Button
             type="button"
             className="text-sm cursor-pointer"
-            onClick={signInWithGoogle}
+            onClick={signUpWithGoogle}
           >
             Continue with Google
           </Button>
           <Button
             type="button"
             className="text-sm cursor-pointer"
-            onClick={signInWithGithub}
+            onClick={signUpWithGithub}
           >
             Continue with GitHub
           </Button>
@@ -189,4 +257,4 @@ const SignInForm = () => {
   );
 };
 
-export default SignInForm;
+export default SignUpForm;

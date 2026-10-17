@@ -13,17 +13,18 @@ datasource db {
 }
 
 model User {
-  id               String      @id
+  id               String    @id
   name             String
   email            String
-  emailVerified    Boolean     @default(false)
-  twoFactorEnabled Boolean     @default(false)
-  twoFactor        TwoFactor[]
+  emailVerified    Boolean   @default(false)
+  twoFactorEnabled Boolean   @default(false)
   image            String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   sessions         Session[]
   accounts         Account[]
+
+  twofactors TwoFactor[]
 
   @@unique([email])
   @@map("user")
@@ -36,7 +37,13 @@ model TwoFactor {
   userId      String
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  verified                Boolean?  @default(true)
+  failedVerificationCount Int?      @default(0)
+  lockedUntil             DateTime?
+
   @@unique([userId])
+  @@index([secret])
+  @@index([userId])
   @@map("twoFactor")
 }
 

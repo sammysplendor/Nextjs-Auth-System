@@ -40,7 +40,6 @@ export const auth = betterAuth({
   },
 
   plugins: [
-    nextCookies(),
     twoFactor({
       otpOptions: {
         async sendOTP({ otp }) {
@@ -48,5 +47,6 @@ export const auth = betterAuth({
         },
       },
     }),
+    nextCookies(),
   ],
 });

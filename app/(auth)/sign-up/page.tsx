@@ -1,4 +1,4 @@
-import SignUpForm from "@/components/sign-up";
+import SignUpForm from "@/components/auth/sign-up";
 import { authIsNotRequired } from "@/lib/auth-utils";
 
 const SignUpPage = async () => {
