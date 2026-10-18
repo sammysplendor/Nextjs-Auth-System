@@ -121,7 +121,18 @@ const SignInForm = () => {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel
+                    htmlFor="password"
+                    className="flex items-center justify-between"
+                  >
+                    <span>Password</span>
+                    <span
+                      className="text-blue-600 cursor-pointer"
+                      onClick={() => router.push("/request-password")}
+                    >
+                      Forgot password
+                    </span>
+                  </FieldLabel>
                   <Input
                     {...field}
                     type="password"

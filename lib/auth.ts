@@ -3,8 +3,9 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { nextCookies } from "better-auth/next-js";
 import { twoFactor } from "better-auth/plugins";
-import sendVerificationEmail from "./send-verification-email";
-import sendOtpEmail from "./send-otp-email";
+import sendVerificationEmail from "./send-emails/send-verification-email";
+import sendOtpEmail from "./send-emails/send-otp-email";
+import sendResetPasswordEmail from "./send-emails/send-reset-password-email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -13,6 +14,19 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ url }) => {
+      void sendResetPasswordEmail({
+        to: "splendidsam006@gmail.com",
+        subject: "Reset your password",
+        url,
+      });
+    },
+  },
+
+  rateLimit: {
+    enabled: true,
+    window: 10,
+    max: 2,
   },
 
   emailVerification: {
