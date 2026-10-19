@@ -19,7 +19,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const emailSchema = z.object({
-  email: z.string().min(6, "Invalid email"),
+  email: z.email("Invalid email"),
 });
 
 type EmailSchema = z.infer<typeof emailSchema>;
@@ -27,7 +27,7 @@ type EmailSchema = z.infer<typeof emailSchema>;
 const RequestPasswordForm = () => {
   const router = useRouter();
 
-  const otpCodeForm = useForm<EmailSchema>({
+  const requestPasswordForm = useForm<EmailSchema>({
     resolver: zodResolver(emailSchema),
     defaultValues: {
       email: "",
@@ -81,13 +81,13 @@ const RequestPasswordForm = () => {
           <CardContent>
             <form
               id="request-password-form"
-              onSubmit={otpCodeForm.handleSubmit(onSubmit)}
+              onSubmit={requestPasswordForm.handleSubmit(onSubmit)}
               className="flex flex-col gap-6"
             >
               <FieldGroup>
                 <Controller
                   name="email"
-                  control={otpCodeForm.control}
+                  control={requestPasswordForm.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid} className="gap-1">
                       <FieldLabel>Email</FieldLabel>
@@ -111,7 +111,7 @@ const RequestPasswordForm = () => {
                 form="request-password-form"
                 className="cursor-pointer"
               >
-                {otpCodeForm.formState.isSubmitting ? (
+                {requestPasswordForm.formState.isSubmitting ? (
                   <Spinner className="size-6" />
                 ) : (
                   "Send Request"
