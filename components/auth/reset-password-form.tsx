@@ -59,7 +59,7 @@ const ResetPasswordForm = () => {
         },
       );
     } catch (error) {
-      console.error("2FA ERROR:", error);
+      console.error("PASSWORD RESET ERROR:", error);
     }
   };
 

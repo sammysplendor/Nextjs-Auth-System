@@ -36,22 +36,24 @@ const RequestPasswordForm = () => {
 
   const [isEmailSent, setIsEmailSent] = useState(false);
 
-  const onSubmit = async (email: EmailSchema) => {
+  const onSubmit = async ({ email }: EmailSchema) => {
     try {
-      await authClient.requestPasswordReset(
-        { email },
+      const { data, error } = await authClient.requestPasswordReset({
+        email,
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
 
-        {
-          onSuccess: async () => {
-            setIsEmailSent(true);
-          },
-          onError: (ctx) => {
-            toast.error(ctx.error.message);
-          },
-        },
-      );
+      if (data?.status) {
+        toast.success("An email has been sent to you.");
+        setIsEmailSent(true);
+        router.refresh();
+      }
+
+      if (error) {
+        toast.error(error.message);
+      }
     } catch (error) {
-      console.error("2FA ERROR:", error);
+      console.error("PASSWORD RESET ERROR:", error);
     } finally {
       setIsEmailSent(false);
     }
