@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { nextCookies } from "better-auth/next-js";
-import { twoFactor } from "better-auth/plugins";
+import { admin, twoFactor } from "better-auth/plugins";
 import sendVerificationEmail from "./send-emails/send-verification-email";
 import sendOtpEmail from "./send-emails/send-otp-email";
 import sendResetPasswordEmail from "./send-emails/send-reset-password-email";
@@ -62,6 +62,7 @@ export const auth = betterAuth({
         },
       },
     }),
+    admin(),
     nextCookies(),
   ],
 });

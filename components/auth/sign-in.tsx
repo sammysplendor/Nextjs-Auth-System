@@ -126,12 +126,12 @@ const SignInForm = () => {
                     className="flex items-center justify-between"
                   >
                     <span>Password</span>
-                    <span
+                    <Link
+                      href="/request-password"
                       className="text-blue-600 cursor-pointer"
-                      onClick={() => router.push("/request-password")}
                     >
                       Forgot password
-                    </span>
+                    </Link>
                   </FieldLabel>
                   <Input
                     {...field}
@@ -154,27 +154,16 @@ const SignInForm = () => {
       <CardFooter className="flex-col">
         <Field
           orientation="horizontal"
-          className="flex w-full itc justify-between"
+          className="flex flex-col w-full justify-between"
         >
-          <p className=" text-sm flex items-center gap-1.5">
-            Do not have an account?
-            <Link href="/sign-up" className="text-blue-500">
-              <b>Sign Up</b>
-            </Link>
-          </p>
           <>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.reset()}
-              className="cursor-pointer"
-            >
-              Reset
-            </Button>
+            <p onClick={() => form.reset()} className="cursor-pointer">
+              <b>Reset</b>
+            </p>
             <Button
               type="submit"
               form="sign-in form"
-              className="cursor-pointer"
+              className="cursor-pointer w-full"
             >
               {form.formState.isSubmitting ? (
                 <Spinner className="size-6" />
@@ -182,6 +171,12 @@ const SignInForm = () => {
                 "Sign In"
               )}
             </Button>
+            <p className=" text-sm flex items-center gap-1.5">
+              Do not have an account?
+              <Link href="/sign-up" className="text-blue-500">
+                <b>Sign Up</b>
+              </Link>
+            </p>
           </>
         </Field>
         <div className="flex flex-col gap-2 w-full my-4 items-center justify-center">

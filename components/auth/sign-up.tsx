@@ -40,7 +40,10 @@ const formSchema = z
     password: z
       .string()
       .min(6, "Must be atleast 6 characters")
-      .regex(/[^a-zA-Z0-9]/, "Must contain atleast 1 special character"),
+      .regex(
+        /[^a-zA-Z0-9]/,
+        "Must contain atleast a number and 1 special character",
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -201,27 +204,13 @@ const SignUpForm = () => {
       <CardFooter className="flex-col">
         <Field
           orientation="horizontal"
-          className="flex w-full itc justify-between"
+          className="flex flex-col w-full justify-between"
         >
-          <p className="text-sm flex items-center gap-1.5">
-            Already have an account?
-            <Link href="/sign-in" className="text-blue-500">
-              <b>Sign In</b>
-            </Link>
-          </p>
           <>
-            <Button
-              type="reset"
-              variant="outline"
-              onClick={() => form.reset()}
-              className="cursor-pointer"
-            >
-              Reset
-            </Button>
             <Button
               type="submit"
               form="sign-up form"
-              className="cursor-pointer"
+              className="cursor-pointer w-full"
             >
               {form.formState.isSubmitting ? (
                 <Spinner className="size-6" />
@@ -229,6 +218,12 @@ const SignUpForm = () => {
                 "Sign Up"
               )}
             </Button>
+            <p className="text-sm flex items-center gap-1.5">
+              Already have an account?
+              <Link href="/sign-in" className="text-blue-500">
+                <b>Sign In</b>
+              </Link>
+            </p>
           </>
         </Field>
         <div className="flex flex-col gap-2 w-full my-4 items-center justify-center">
