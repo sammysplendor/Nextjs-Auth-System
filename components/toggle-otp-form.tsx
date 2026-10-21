@@ -61,6 +61,7 @@ const ToggleOTPForm = ({ twoFactorEnabled }: ToggleOTPProps) => {
           return;
         }
         toast.success("Two factor authentication enabled!");
+        router.refresh();
       } else {
         const { error } = await authClient.twoFactor.disable({
           password: data.password,

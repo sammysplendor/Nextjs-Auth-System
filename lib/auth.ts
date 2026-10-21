@@ -55,6 +55,7 @@ export const auth = betterAuth({
 
   plugins: [
     twoFactor({
+      skipVerificationOnEnable: true,
       otpOptions: {
         async sendOTP({ otp }) {
           sendOtpEmail({ to: "splendidsam006@gmail.com", otp });

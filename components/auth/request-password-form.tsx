@@ -51,11 +51,10 @@ const RequestPasswordForm = () => {
 
       if (error) {
         toast.error(error.message);
+        setIsEmailSent(false);
       }
     } catch (error) {
       console.error("PASSWORD RESET ERROR:", error);
-    } finally {
-      setIsEmailSent(false);
     }
   };
 
