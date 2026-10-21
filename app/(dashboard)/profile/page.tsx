@@ -13,7 +13,7 @@ const ProfilePage = async () => {
   if (!user) redirect("/sign-in");
 
   return (
-    <div className="w-full p-6 shadow-lg rounded-2xl h-screen flex justify-center items-start gap-6">
+    <div className="w-full p-6 shadow-lg rounded-2xl h-screen flex justify-center items-start gap-6 mx-auto max-w-7xl">
       <ProfileForm
         email={user.email}
         name={user.name ?? ""}
