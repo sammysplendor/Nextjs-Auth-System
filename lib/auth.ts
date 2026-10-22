@@ -2,10 +2,11 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { nextCookies } from "better-auth/next-js";
-import { admin, twoFactor } from "better-auth/plugins";
+import { admin as adminPlugin, twoFactor } from "better-auth/plugins";
 import sendVerificationEmail from "./send-emails/send-verification-email";
 import sendOtpEmail from "./send-emails/send-otp-email";
 import sendResetPasswordEmail from "./send-emails/send-reset-password-email";
+import { ac, roles } from "./permission";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -62,7 +63,12 @@ export const auth = betterAuth({
         },
       },
     }),
-    admin(),
+    adminPlugin({
+      ac,
+      roles,
+      defaultRole: "user",
+      adminRoles: ["admin", "superAdmin"],
+    }),
     nextCookies(),
   ],
 });
