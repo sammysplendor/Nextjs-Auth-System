@@ -158,7 +158,7 @@ const SignInForm = () => {
         >
           <>
             <p onClick={() => form.reset()} className="cursor-pointer">
-              <b>Reset</b>
+              Reset
             </p>
             <Button
               type="submit"
