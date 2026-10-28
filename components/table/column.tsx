@@ -8,11 +8,21 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 import { Trash } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { useState } from "react";
 
 // Helper component for the action buttons inside each row
 const ActionCell = ({ user }: { user: UserProps }) => {
   const { setUser, setIsOpen } = useUser();
   const router = useRouter();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleEdit = () => {
     setUser(user);
@@ -27,6 +37,7 @@ const ActionCell = ({ user }: { user: UserProps }) => {
 
       toast.success("User deleted successfully!");
       router.refresh();
+      setIsDeleteModalOpen(false);
     } catch (error) {
       toast.error("Failed to delete user");
       console.error("DELETE USER ERROR:", error);
@@ -34,25 +45,56 @@ const ActionCell = ({ user }: { user: UserProps }) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        className="cursor-pointer"
-        onClick={handleEdit}
+    <>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="cursor-pointer"
+          onClick={handleEdit}
+        >
+          Edit
+        </Button>
+        {user.hasDeletePermission && (
+          <Button
+            variant="destructive"
+            size="sm"
+            className="cursor-pointer"
+            onClick={() => setIsDeleteModalOpen(true)}
+            title="Delete user"
+          >
+            <Trash />
+          </Button>
+        )}
+      </div>
+
+      <Dialog
+        open={isDeleteModalOpen}
+        onOpenChange={(isOpen) => {
+          setIsDeleteModalOpen(isOpen);
+        }}
       >
-        Edit
-      </Button>
-      <Button
-        variant="destructive"
-        size="sm"
-        className="cursor-pointer"
-        onClick={handleDelete}
-        title="Delete user"
-      >
-        <Trash />
-      </Button>
-    </div>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            Are you sure you want to delete {user.name}? <br />
+            This action cannot be undone.
+          </DialogDescription>
+
+          <DialogFooter>
+            <Button
+              variant="destructive"
+              className="w-full cursor-pointer"
+              onClick={handleDelete}
+            >
+              Delete User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
