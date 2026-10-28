@@ -4,6 +4,8 @@ import { Toaster } from "sonner";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import UserManagementForm from "./user-client";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 const UserManagement = async () => {
   await authIsRequired();
@@ -49,8 +51,15 @@ const UserManagement = async () => {
   if (!users) redirect("/sign-in");
 
   return (
-    <div className="w-full p-6 shadow-lg rounded-2xl h-screen flex justify-center items-start gap-6 mx-auto max-w-7xl">
+    <div className="w-full p-6 shadow-lg rounded-2xl h-screen flex flex-col justify-center items-start gap-4 mx-auto max-w-7xl">
       <UserManagementForm users={formattedUsers} />
+
+      <Link
+        href="/"
+        className="flex items-center gap-2 rounded-xl text-sm px-4 py-2 hover hover:bg-slate-800"
+      >
+        <ArrowLeft size={20} /> Back
+      </Link>
 
       <Toaster position="bottom-right" richColors />
     </div>
