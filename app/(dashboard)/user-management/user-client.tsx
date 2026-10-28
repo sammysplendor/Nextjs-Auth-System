@@ -151,6 +151,26 @@ const UserManagementForm = ({ users }: { users: UserProps[] }) => {
           >
             <FieldGroup>
               <Controller
+                name="name"
+                control={userMgtForm.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="gap-1">
+                    <FieldLabel>Name</FieldLabel>
+                    <Input
+                      type="text"
+                      {...field}
+                      autoComplete="off"
+                      aria-invalid={fieldState.invalid}
+                    />
+
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
                 name="email"
                 control={userMgtForm.control}
                 render={({ field, fieldState }) => (
